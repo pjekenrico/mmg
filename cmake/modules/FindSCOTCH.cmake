@@ -127,7 +127,7 @@ else()
     find_path(SCOTCH_scotch.h_DIRS
       NAMES scotch.h
       HINTS ${SCOTCH_DIR}
-      PATH_SUFFIXES "include" "include/scotch")
+      PATH_SUFFIXES "include" "include/scotch" "src/include")
   else()
     set(SCOTCH_scotch.h_DIRS "SCOTCH_scotch.h_DIRS-NOTFOUND")
     find_path(SCOTCH_scotch.h_DIRS
