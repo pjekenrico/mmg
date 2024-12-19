@@ -301,25 +301,67 @@ ADD_TEST(NAME mmg2d_vtkvtu_ani
   ${MMG2D_CI_TESTS}/VtkInout/ani.vtu
   ${CTEST_OUTPUT_DIR}/mmg2d_vtkvtu_ani)
 
+# VTK .vtk with ls
+ADD_TEST(NAME mmg2d_vtkvtk_ls
+COMMAND ${EXECUT_MMG2D} -v 5 -ls 0.8
+${MMG2D_CI_TESTS}/VtkInout/cercle_ls.vtk
+${CTEST_OUTPUT_DIR}/mmg2d_vtkvtk_ls)
+
+# VTK .vtu with ls
+ADD_TEST(NAME mmg2d_vtkvtu_ls
+COMMAND ${EXECUT_MMG2D} -v 5 -ls 0.8
+${MMG2D_CI_TESTS}/VtkInout/cercle_ls.vtu
+${CTEST_OUTPUT_DIR}/mmg2d_vtkvtu_ls)
+
+# VTK .vtp with ls
+ADD_TEST(NAME mmg2d_vtkvtp_ls
+COMMAND ${EXECUT_MMG2D} -v 5 -ls 0.8
+${MMG2D_CI_TESTS}/VtkInout/cercle_ls.vtp
+${CTEST_OUTPUT_DIR}/mmg2d_vtkvtp_ls)
+
+# VTK .vtk with ls and metric
+ADD_TEST(NAME mmg2d_vtkvtk_ls_metric
+  COMMAND ${EXECUT_MMG2D} -v 5 -ls 0.8
+  ${MMG2D_CI_TESTS}/VtkInout/cercle_ls_metric.vtk
+  ${CTEST_OUTPUT_DIR}/mmg2d_vtkvtk_ls_metric)
+
+# VTK .vtu with ls and metric
+ADD_TEST(NAME mmg2d_vtkvtu_ls_metric
+COMMAND ${EXECUT_MMG2D} -v 5 -ls 0.8
+${MMG2D_CI_TESTS}/VtkInout/cercle_ls_metric.vtu
+${CTEST_OUTPUT_DIR}/mmg2d_vtkvtu_ls_metric)
+
+# VTK .vtp with ls and metric
+ADD_TEST(NAME mmg2d_vtkvtp_ls_metric
+  COMMAND ${EXECUT_MMG2D} -v 5 -ls 0.8
+  ${MMG2D_CI_TESTS}/VtkInout/cercle_ls_metric.vtp
+  ${CTEST_OUTPUT_DIR}/mmg2d_vtkvtp_ls_metric)
+
+# VTK .vtk with metric and ls
+ADD_TEST(NAME mmg2d_vtkvtk_metric_ls
+COMMAND ${EXECUT_MMG2D} -v 5 -ls 0.8
+${MMG2D_CI_TESTS}/VtkInout/cercle_metric_ls.vtk
+${CTEST_OUTPUT_DIR}/mmg2d_vtkvtk_metric_ls)
+
 IF ( (NOT VTK_FOUND) OR USE_VTK MATCHES OFF )
   SET(expr "VTK library not founded")
-  SET_PROPERTY(TEST mmg2d_vtkvtk
-    PROPERTY PASS_REGULAR_EXPRESSION "${expr}")
-  SET_PROPERTY(TEST mmg2d_vtkvtp
-    PROPERTY PASS_REGULAR_EXPRESSION "${expr}")
-  SET_PROPERTY(TEST mmg2d_vtkvtu
-    PROPERTY PASS_REGULAR_EXPRESSION "${expr}")
-  SET_PROPERTY(TEST mmg2d_vtkvtk_iso
-    PROPERTY PASS_REGULAR_EXPRESSION "${expr}")
-  SET_PROPERTY(TEST mmg2d_vtkvtp_iso
-    PROPERTY PASS_REGULAR_EXPRESSION "${expr}")
-  SET_PROPERTY(TEST mmg2d_vtkvtu_iso
-    PROPERTY PASS_REGULAR_EXPRESSION "${expr}")
-  SET_PROPERTY(TEST mmg2d_vtkvtk_ani
-    PROPERTY PASS_REGULAR_EXPRESSION "${expr}")
-  SET_PROPERTY(TEST mmg2d_vtkvtp_ani
-    PROPERTY PASS_REGULAR_EXPRESSION "${expr}")
-  SET_PROPERTY(TEST mmg2d_vtkvtu_ani
+  SET_PROPERTY(TEST
+    mmg2d_vtkvtk
+    mmg2d_vtkvtp
+    mmg2d_vtkvtu
+    mmg2d_vtkvtk_iso
+    mmg2d_vtkvtp_iso
+    mmg2d_vtkvtu_iso
+    mmg2d_vtkvtk_ani
+    mmg2d_vtkvtp_ani
+    mmg2d_vtkvtu_ani
+    mmg2d_vtkvtk_ls
+    mmg2d_vtkvtu_ls
+    mmg2d_vtkvtp_ls
+    mmg2d_vtkvtk_ls_metric
+    mmg2d_vtkvtu_ls_metric
+    mmg2d_vtkvtp_ls_metric
+    mmg2d_vtkvtk_metric_ls
     PROPERTY PASS_REGULAR_EXPRESSION "${expr}")
 ENDIF()
 
@@ -622,7 +664,39 @@ if (BASH)
     )
 endif()
 
-# ls discretisation + optim option
+# ls discretisation + parameter file
+ADD_TEST(NAME mmg2d_ParsOpName
+  COMMAND ${EXECUT_MMG2D} -v 5 -ls
+  -f ${MMG2D_CI_TESTS}/LSMultiMat/multi-mat-refs.mmg2d
+  ${MMG2D_CI_TESTS}/LSMultiMat/multi-mat.mesh
+  ${CTEST_OUTPUT_DIR}/mmg2d_ParsOpName.o.meshb)
+
+SET(parsopName "multi-mat-refs.mmg2d OPENED")
+SET_PROPERTY(TEST mmg2d_ParsOpName
+  PROPERTY PASS_REGULAR_EXPRESSION "${parsopName}")
+
+# ls discretisation + wrong name of parameter file
+ADD_TEST(NAME mmg2d_ParsOpName_wrongFile
+  COMMAND ${EXECUT_MMG2D} -v 5 -ls
+  -f ${MMG2D_CI_TESTS}/LSMultiMat/multi-mat-false.mmg2d
+  ${MMG2D_CI_TESTS}/LSMultiMat/multi-mat.mesh
+  ${CTEST_OUTPUT_DIR}/mmg2d_ParsOpName_wrongFile.o.meshb)
+
+SET(parsopNameWrong "multi-mat-false.mmg2d file NOT FOUND.")
+SET_PROPERTY(TEST mmg2d_ParsOpName_wrongFile
+  PROPERTY PASS_REGULAR_EXPRESSION "${parsopNameWrong}")
+
+# ls discretisation + no name of parameter file
+ADD_TEST(NAME mmg2d_ParsOpName_NoFileName
+  COMMAND ${EXECUT_MMG2D} -v 5 -f -ls
+  ${MMG2D_CI_TESTS}/LSMultiMat/multi-mat.mesh
+  ${CTEST_OUTPUT_DIR}/mmg2d_ParsOpName_NoFileName.o.meshb)
+
+SET(parsopNameNo "Missing filename for -f")
+SET_PROPERTY(TEST mmg2d_ParsOpName_NoFileName
+  PROPERTY PASS_REGULAR_EXPRESSION "${parsopNameNo}")
+
+  # ls discretisation + optim option
 ADD_TEST(NAME mmg2d_LSMultiMat_optim
   COMMAND ${EXECUT_MMG2D} -v 5 -ls -optim -hausd 0.001
   ${MMG2D_CI_TESTS}/LSMultiMat/multi-mat
@@ -679,6 +753,12 @@ ADD_TEST(NAME mmg2d_CoorRegularizationNegativeArea
   ${MMG2D_CI_TESTS}/CoorRegularizationNegativeArea/CoorRegularizationNegativeArea
   -out ${CTEST_OUTPUT_DIR}/CoorRegularizationNegativeArea.o.meshb)
 
+# ls discretisation + xreg + choice of value for xreg
+ADD_TEST(NAME mmg2d_CoorRegularization_apple_value
+  COMMAND ${EXECUT_MMG2D} -v 5 -ls -xreg 0.9
+  ${MMG2D_CI_TESTS}/CoorRegularization_apple/apple
+  -out ${CTEST_OUTPUT_DIR}/CoorRegularization_apple_value.o.meshb)
+
 ###############################################################################
 #####
 #####         Check Lagrangian motion option
@@ -708,6 +788,12 @@ IF ( ELAS_FOUND AND NOT USE_ELAS MATCHES OFF )
     -in ${MMG2D_CI_TESTS}/LagMotion_circle/circle
     -out ${CTEST_OUTPUT_DIR}/mmg2d_LagMotion2_circle-nsd3.o.mesh
     )
+
+  IF (${MMG5_INT} MATCHES int64_t )
+    SET(passElasRegex "## Error: MMG2D_velextLS: impossible to call elasticity library with int64 integers")
+    SET_PROPERTY(TEST mmg2d_LagMotion0_circle mmg2d_LagMotion1_circle mmg2d_LagMotion2_circle mmg2d_LagMotion2_circle-nsd3
+      PROPERTY PASS_REGULAR_EXPRESSION "${passElasRegex}")
+  ENDIF()
 
 ENDIF()
 

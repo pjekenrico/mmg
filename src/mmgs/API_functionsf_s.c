@@ -136,6 +136,24 @@ FORTRAN_NAME(MMGS_SET_OUTPUTSOLNAME,mmgs_set_outputsolname,
 }
 
 /**
+ * See \ref MMGS_Set_inputParamName function in \ref mmgs/libmmgs.h file.
+ */
+FORTRAN_NAME(MMGS_SET_INPUTPARAMNAME, mmgs_set_inputparamname,
+             (MMG5_pMesh *mesh,char* fparamin, int* strlen0, int* retval),
+             (mesh,fparamin,strlen0,retval)) {
+
+  char *tmp = NULL;
+
+  MMG5_SAFE_MALLOC(tmp,*strlen0+1,char,return);
+  strncpy(tmp,fparamin,*strlen0);
+  tmp[*strlen0] = '\0';
+  *retval = MMGS_Set_inputParamName(*mesh,tmp);
+  MMG5_SAFE_FREE(tmp);
+
+  return;
+}
+
+/**
  * See \ref MMGS_Set_solSize function in \ref mmgs/libmmgs.h file.
  */
 FORTRAN_NAME(MMGS_SET_SOLSIZE,mmgs_set_solsize,
@@ -789,15 +807,15 @@ FORTRAN_NAME(MMGS_LOADMESH,mmgs_loadmesh,
  * See \ref MMGS_loadVtkMesh function in \ref mmgs/libmmgs.h file.
  */
 FORTRAN_NAME(MMGS_LOADVTKMESH,mmgs_loadvtkmesh,
-             (MMG5_pMesh *mesh, MMG5_pSol *sol,char* filename, int *strlen0,int* retval),
-             (mesh,sol,filename,strlen0, retval)){
+             (MMG5_pMesh *mesh, MMG5_pSol *met,MMG5_pSol *sol,char* filename, int *strlen0,int* retval),
+             (mesh,met,sol,filename,strlen0, retval)){
   char *tmp = NULL;
 
   MMG5_SAFE_MALLOC(tmp,*strlen0+1,char,return);
   strncpy(tmp,filename,*strlen0);
   tmp[*strlen0] = '\0';
 
-  *retval = MMGS_loadVtkMesh(*mesh,*sol,tmp);
+  *retval = MMGS_loadVtkMesh(*mesh,*met,*sol,tmp);
 
   MMG5_SAFE_FREE(tmp);
 
@@ -825,15 +843,15 @@ FORTRAN_NAME(MMGS_LOADVTKMESH_AND_ALLDATA,mmgs_loadvtkmesh_and_alldata,
  * See \ref MMGS_loadVtpMesh function in \ref mmgs/libmmgs.h file.
  */
 FORTRAN_NAME(MMGS_LOADVTPMESH,mmgs_loadvtpmesh,
-             (MMG5_pMesh *mesh, MMG5_pSol *sol,char* filename, int *strlen0,int* retval),
-             (mesh,sol,filename,strlen0, retval)){
+             (MMG5_pMesh *mesh, MMG5_pSol *met,MMG5_pSol *sol,char* filename, int *strlen0,int* retval),
+             (mesh,met,sol,filename,strlen0, retval)){
   char *tmp = NULL;
 
   MMG5_SAFE_MALLOC(tmp,*strlen0+1,char,return);
   strncpy(tmp,filename,*strlen0);
   tmp[*strlen0] = '\0';
 
-  *retval = MMGS_loadVtpMesh(*mesh,*sol,tmp);
+  *retval = MMGS_loadVtpMesh(*mesh,*met,*sol,tmp);
 
   MMG5_SAFE_FREE(tmp);
 
@@ -861,22 +879,22 @@ FORTRAN_NAME(MMGS_LOADVTPMESH_AND_ALLDATA,mmgs_loadvtpmesh_and_alldata,
  * See \ref MMGS_loadVtuMesh function in \ref mmgs/libmmgs.h file.
  */
 FORTRAN_NAME(MMGS_LOADVTUMESH,mmgs_loadvtumesh,
-             (MMG5_pMesh *mesh, MMG5_pSol *sol,char* filename, int *strlen0,int* retval),
-             (mesh,sol,filename,strlen0, retval)){
+             (MMG5_pMesh *mesh, MMG5_pSol *met,MMG5_pSol *sol,char* filename, int *strlen0,int* retval),
+             (mesh,met,sol,filename,strlen0, retval)){
   char *tmp = NULL;
 
   MMG5_SAFE_MALLOC(tmp,*strlen0+1,char,return);
   strncpy(tmp,filename,*strlen0);
   tmp[*strlen0] = '\0';
 
-  *retval = MMGS_loadVtuMesh(*mesh,*sol,tmp);
+  *retval = MMGS_loadVtuMesh(*mesh,*met,*sol,tmp);
 
   MMG5_SAFE_FREE(tmp);
 
   return;
 }
 /**
- * See \ref MMGS_loadVtuMesh function in \ref mmgs/libmmgs.h file.
+ * See \ref MMGS_loadVtuMesh_and_allData function in \ref mmgs/libmmgs.h file.
  */
 FORTRAN_NAME(MMGS_LOADVTUMESH_AND_ALLDATA,mmgs_loadvtumesh_and_alldata,
              (MMG5_pMesh *mesh, MMG5_pSol *sol,char* filename, int *strlen0,int* retval),
@@ -917,15 +935,15 @@ FORTRAN_NAME(MMGS_LOADMSHMESH,mmgs_loadmshmesh,
  * See \ref MMGS_loadGenericMesh function in \ref mmgs/libmmgs.h file.
  */
 FORTRAN_NAME(MMGS_LOADGENERICMESH,mmgs_loadgenericmesh,
-             (MMG5_pMesh *mesh, MMG5_pSol *sol,char* filename, int *strlen0,int* retval),
-             (mesh,sol,filename,strlen0, retval)){
+             (MMG5_pMesh *mesh, MMG5_pSol *met,MMG5_pSol *sol,char* filename, int *strlen0,int* retval),
+             (mesh,met,sol,filename,strlen0, retval)){
   char *tmp = NULL;
 
   MMG5_SAFE_MALLOC(tmp,*strlen0+1,char,return);
   strncpy(tmp,filename,*strlen0);
   tmp[*strlen0] = '\0';
 
-  *retval = MMGS_loadGenericMesh(*mesh,*sol,tmp);
+  *retval = MMGS_loadGenericMesh(*mesh,*met,*sol,tmp);
 
   MMG5_SAFE_FREE(tmp);
 

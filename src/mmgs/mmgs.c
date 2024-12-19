@@ -52,8 +52,8 @@ static void MMG5_endcod(void) {
 
 
 /**
- * \param mesh pointer toward the mesh structure.
- * \param met pointer toward the sol structure.
+ * \param mesh pointer to the mesh structure.
+ * \param met pointer to the sol structure.
  * \return 1.
  *
  * Read local parameters file. This file must have the same name as
@@ -61,7 +61,7 @@ static void MMG5_endcod(void) {
  * DEFAULT.mmgs.
  *
  */
-static int MMG5_parsop(MMG5_pMesh mesh,MMG5_pSol met) {
+static int MMGS_parsop(MMG5_pMesh mesh,MMG5_pSol met) {
   float      fp1,fp2,hausd;
   int        i,j,ret,npar,nbr,split;
   MMG5_int   ref,rin,rex,br;
@@ -70,7 +70,12 @@ static int MMG5_parsop(MMG5_pMesh mesh,MMG5_pSol met) {
   fpos_t     position;
 
   /* check for parameter file */
-  strcpy(data,mesh->namein);
+  if (mesh->info.fparam) {
+    strcpy(data,mesh->info.fparam);
+  }
+  else {
+    strcpy(data,mesh->namein);
+  }
 
   ptr = MMG5_Get_filenameExt(data);
 
@@ -79,10 +84,16 @@ static int MMG5_parsop(MMG5_pMesh mesh,MMG5_pSol met) {
 
   in = fopen(data,"rb");
   if ( !in ) {
-    sprintf(data,"%s","DEFAULT.mmgs");
-    in = fopen(data,"rb");
-    if ( !in ) {
-      return 1;
+    if ( !mesh->info.fparam ) {
+      sprintf(data,"%s","DEFAULT.mmgs");
+      in = fopen(data,"rb");
+      if ( !in )
+        return 1;
+    }
+    else if (mesh->info.fparam ) {
+      fprintf(stderr,"  ** In %s: %s file NOT FOUND. \n",__func__,data);
+      fprintf(stdout,"  ## ERROR: UNABLE TO LOAD PARAMETER FILE.\n");
+      return 0;
     }
   }
   if ( mesh->info.imprim >= 0 ) {
@@ -190,7 +201,7 @@ static int MMG5_parsop(MMG5_pMesh mesh,MMG5_pSol met) {
 }
 
 /**
- * \param mesh pointer toward the mesh structure.
+ * \param mesh pointer to the mesh structure.
  * \return 1 if success, 0 otherwise.
  *
  * Write a DEFAULT.mmg3d file containing the default values of parameters that
@@ -242,9 +253,9 @@ int MMGS_writeLocalParam( MMG5_pMesh mesh ) {
 }
 
 /**
- * \param mesh pointer toward the mesh structure.
- * \param met pointer toward a sol structure (metric).
- * \param sol pointer toward a sol structure (metric).
+ * \param mesh pointer to the mesh structure.
+ * \param met pointer to a sol structure (metric).
+ * \param sol pointer to a sol structure (metric).
  *
  * \return \ref MMG5_SUCCESS if success, \ref MMG5_LOWFAILURE if failed
  * but a conform mesh is saved and \ref MMG5_STRONGFAILURE if failed and we
@@ -413,15 +424,15 @@ int main(int argc,char *argv[]) {
     break;
 
   case ( MMG5_FMT_VtkVtp ):
-    ier = MMGS_loadVtpMesh(mesh,sol,mesh->namein);
+    ier = MMGS_loadVtpMesh(mesh,met,sol,mesh->namein);
     break;
 
   case ( MMG5_FMT_VtkVtu ):
-    ier = MMGS_loadVtuMesh(mesh,sol,mesh->namein);
+    ier = MMGS_loadVtuMesh(mesh,met,sol,mesh->namein);
     break;
 
   case ( MMG5_FMT_VtkVtk ):
-    ier = MMGS_loadVtkMesh(mesh,sol,mesh->namein);
+    ier = MMGS_loadVtkMesh(mesh,met,sol,mesh->namein);
     break;
 
   case ( MMG5_FMT_MeditASCII ): case ( MMG5_FMT_MeditBinary ):
@@ -439,6 +450,11 @@ int main(int argc,char *argv[]) {
           fprintf(stdout,"  ## ERROR: UNABLE TO LOAD METRIC.\n");
           MMGS_RETURN_AND_FREE(mesh,met,ls,MMG5_STRONGFAILURE);
         }
+      }
+      else {
+        /* Give a name to the metric if not provided */
+        if ( !MMGS_Set_inputSolName(mesh,met,"") )
+          fprintf(stdout,"  ## ERROR: UNABLE TO GIVE A NAME TO THE METRIC.\n");
       }
     }
     else {
@@ -472,7 +488,7 @@ int main(int argc,char *argv[]) {
   }
 
   /* Read parameter file */
-  if ( !MMG5_parsop(mesh,met) )
+  if ( !MMGS_parsop(mesh,met) )
     MMGS_RETURN_AND_FREE(mesh,met,ls,MMG5_LOWFAILURE);
 
   chrono(OFF,&MMG5_ctim[1]);

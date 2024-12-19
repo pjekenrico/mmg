@@ -49,8 +49,8 @@ static void MMG5_endcod(void) {
 }
 
 /**
- * \param mesh pointer toward the mesh structure.
- * \param bdyRefs pointer toward the list of the boundary references.
+ * \param mesh pointer to the mesh structure.
+ * \param bdyRefs pointer to the list of the boundary references.
  * \return npar, the number of local parameters at tetrahedra if success,
  * 0 otherwise.
  *
@@ -94,9 +94,9 @@ int MMG5_countLocalParamAtTet( MMG5_pMesh mesh,MMG5_iNode **bdyRefs) {
 }
 
 /**
- * \param mesh pointer toward the mesh structure.
- * \param bdryRefs pointer toward the list of the boundary references.
- * \param out pointer toward the file in which to write.
+ * \param mesh pointer to the mesh structure.
+ * \param bdryRefs pointer to the list of the boundary references.
+ * \param out pointer to the file in which to write.
  * \return 1 if success, 0 otherwise.
  *
  * Write the local default values at tetrahedra in the parameter file.
@@ -120,7 +120,7 @@ int MMG5_writeLocalParamAtTet( MMG5_pMesh mesh, MMG5_iNode *bdryRefs,
 
 
 /**
- * \param mesh pointer toward the mesh structure.
+ * \param mesh pointer to the mesh structure.
  * \return 1 if success, 0 otherwise.
  *
  * Write a DEFAULT.mmg3d file containing the default values of parameters that
@@ -181,9 +181,9 @@ int MMG3D_writeLocalParam( MMG5_pMesh mesh ) {
 }
 
 /**
- * \param mesh pointer toward the mesh structure.
- * \param met pointer toward a sol structure (metric).
- * \param sol pointer toward a sol structure (ls or disp).
+ * \param mesh pointer to the mesh structure.
+ * \param met pointer to a sol structure (metric).
+ * \param sol pointer to a sol structure (ls or disp).
  *
  * \return \ref MMG5_SUCCESS if success, \ref MMG5_LOWFAILURE if failed
  * but a conform mesh is saved and \ref MMG5_STRONGFAILURE if failed and we
@@ -376,11 +376,11 @@ int main(int argc,char *argv[]) {
     break;
 
   case ( MMG5_FMT_VtkVtu ):
-    ier = MMG3D_loadVtuMesh(mesh,sol,mesh->namein);
+    ier = MMG3D_loadVtuMesh(mesh,met,sol,mesh->namein);
     break;
 
   case ( MMG5_FMT_VtkVtk ):
-    ier = MMG3D_loadVtkMesh(mesh,sol,mesh->namein);
+    ier = MMG3D_loadVtkMesh(mesh,met,sol,mesh->namein);
     break;
 
   case ( MMG5_FMT_MeditASCII ): case ( MMG5_FMT_MeditBinary ):
@@ -409,11 +409,19 @@ int main(int argc,char *argv[]) {
         MMG5_RETURN_AND_FREE(mesh,met,ls,disp,MMG5_STRONGFAILURE);
       }
     }
+
     /* In iso mode: read metric if any */
-    if ( mesh->info.iso && met->namein ) {
-      if ( MMG3D_loadSol(mesh,met,met->namein) < 1 ) {
-        fprintf(stdout,"  ## ERROR: UNABLE TO LOAD METRIC.\n");
-        MMG5_RETURN_AND_FREE(mesh,met,ls,disp,MMG5_STRONGFAILURE);
+    if ( mesh->info.iso ) {
+      if (met->namein) {
+        if ( MMG3D_loadSol(mesh,met,met->namein) < 1 ) {
+          fprintf(stdout,"  ## ERROR: UNABLE TO LOAD METRIC.\n");
+          MMG5_RETURN_AND_FREE(mesh,met,ls,disp,MMG5_STRONGFAILURE);
+        }
+      }
+      else {
+        /* Give a name to the metric if not provided */
+        if ( !MMG3D_Set_inputSolName(mesh,met,"") )
+          fprintf(stdout,"  ## ERROR: UNABLE TO GIVE A NAME TO THE METRIC.\n");
       }
     }
     break;
